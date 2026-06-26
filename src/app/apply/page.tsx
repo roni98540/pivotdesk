@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { TrendingUp, ArrowLeft, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 
 type Step = 1 | 2 | 3
 
@@ -322,7 +323,20 @@ export default function ApplyPage() {
                 </button>
               ) : (
                 <button
-                  onClick={() => setSubmitted(true)}
+                  onClick={async () => {
+                    const supabase = createClient()
+                    await supabase.from('applications').insert({
+                      email: form.email,
+                      full_name: form.fullName,
+                      years_experience: form.yearsExp,
+                      avg_hold_time: form.holdTime,
+                      trading_style: form.style,
+                      edge_description: form.edgeDescription,
+                      worst_mistake: form.worstMistake,
+                      track_record: form.trackRecord,
+                    })
+                    setSubmitted(true)
+                  }}
                   disabled={!canSubmit}
                   className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors"
                 >

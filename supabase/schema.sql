@@ -1,3 +1,18 @@
+-- Drop existing tables and recreate cleanly
+drop trigger if exists on_auth_user_created on auth.users;
+drop trigger if exists on_like_change on public.likes;
+drop trigger if exists on_comment_change on public.comments;
+drop function if exists public.handle_new_user();
+drop function if exists public.update_like_count();
+drop function if exists public.update_comment_count();
+drop table if exists public.follows cascade;
+drop table if exists public.bookmarks cascade;
+drop table if exists public.likes cascade;
+drop table if exists public.comments cascade;
+drop table if exists public.posts cascade;
+drop table if exists public.applications cascade;
+drop table if exists public.profiles cascade;
+
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
@@ -117,7 +132,6 @@ create policy "Approved members can like"
   on likes for all
   using (auth.uid() in (select id from profiles where is_approved = true));
 
--- Update like_count on posts
 create or replace function update_like_count()
 returns trigger language plpgsql as $$
 begin
@@ -171,7 +185,6 @@ create policy "Approved members can comment"
   on comments for insert
   with check (auth.uid() in (select id from profiles where is_approved = true));
 
--- Update comment_count on posts
 create or replace function update_comment_count()
 returns trigger language plpgsql as $$
 begin
